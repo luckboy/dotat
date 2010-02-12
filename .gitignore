@@ -1,0 +1,16 @@
+*~
+*.a
+*.lib
+*.dll
+*.so
+*.exe
+dotatrun
+testdotat
+CMakeFiles/*
+Testing/*
+CMakeCache.txt
+CPackConfig.cmake
+CPackSourceConfig.cmake
+CTestTestfile.cmake
+Makefile
+cmake_install.cmake
