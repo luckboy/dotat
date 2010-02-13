@@ -730,6 +730,48 @@ void TestExpr::test_detect_tail_recursion()
   m_interp->pop_scope();
 }
 
+void TestExpr::test_substitution()
+{
+  // 1111.m1(2222).m(x.m2(y))
+  dotat::RefPtr<dotat::Expr> ll1(new dotat::ValExpr(m_interp->num_val(1111)));
+  dotat::RefPtr<dotat::Expr> lr1(new dotat::ValExpr(m_interp->num_val(2222)));
+  dotat::RefPtr<dotat::Expr> l1(new dotat::SendMethodExpr(ll1, "m1", lr1));
+  dotat::RefPtr<dotat::Expr> rl1(new dotat::VarExpr("x"));
+  dotat::RefPtr<dotat::Expr> rr1(new dotat::VarExpr("y"));
+  dotat::RefPtr<dotat::Expr> r1(new dotat::SendMethodExpr(rl1, "m2", rr1));
+  dotat::RefPtr<dotat::Expr> e1(new dotat::SendMethodExpr(l1, "m", r1));
+  // x -> v1.m(v2)
+  dotat::RefPtr<dotat::Expr> l2(new dotat::VarExpr("v1"));
+  dotat::RefPtr<dotat::Expr> r2(new dotat::VarExpr("v2"));
+  dotat::RefPtr<dotat::Expr> e2(new dotat::SendMethodExpr(l2, "m", r2));
+  dotat::RefPtr<dotat::Expr> new_e1=e1->substit("x", e2);
+
+  CPPUNIT_ASSERT(new_e1->left().get()==l1.get());
+  CPPUNIT_ASSERT(new_e1->right().get()!=r1.get());
+  CPPUNIT_ASSERT(new_e1->right()->left().get()==e2.get());
+  CPPUNIT_ASSERT(new_e1->right()->right().get()==rr1.get());
+  // y.m1(4444).m(x.m2(y))
+  dotat::RefPtr<dotat::Expr> ll3(new dotat::VarExpr("y"));
+  dotat::RefPtr<dotat::Expr> lr3(new dotat::ValExpr(m_interp->num_val(444)));
+  dotat::RefPtr<dotat::Expr> l3(new dotat::SendMethodExpr(ll3, "m1", lr3));
+  dotat::RefPtr<dotat::Expr> rl3(new dotat::VarExpr("x"));
+  dotat::RefPtr<dotat::Expr> rr3(new dotat::VarExpr("y"));
+  dotat::RefPtr<dotat::Expr> r3(new dotat::SendMethodExpr(rl3, "m2", rr3));
+  dotat::RefPtr<dotat::Expr> e3(new dotat::SendMethodExpr(l3, "m", r3));
+  // x -> v.+(2)
+  dotat::RefPtr<dotat::Expr> l4(new dotat::VarExpr("v"));
+  dotat::RefPtr<dotat::Expr> r4(new dotat::ValExpr(m_interp->num_val(2)));
+  dotat::RefPtr<dotat::Expr> e4(new dotat::SendMethodExpr(l4, "+", r4));
+  dotat::RefPtr<dotat::Expr> new_e3=e3->substit("y", e4);
+
+  CPPUNIT_ASSERT(new_e3->left().get()!=l3.get());
+  CPPUNIT_ASSERT(new_e3->left()->left().get()==e4.get());
+  CPPUNIT_ASSERT(new_e3->left()->right().get()==lr3.get());
+  CPPUNIT_ASSERT(new_e3->right().get()!=r3.get());
+  CPPUNIT_ASSERT(new_e3->right()->left().get()==rl3.get());
+  CPPUNIT_ASSERT(new_e3->right()->right().get()==e4.get());
+}
+
 //
 // TestParser
 //
