@@ -679,6 +679,57 @@ void TestExpr::test_evaluate_undetermined_method()
   CPPUNIT_ASSERT_EQUAL(string("xx"), m_oss->str());
 }
 
+void TestExpr::test_detect_infinite_tail_recursion()
+{
+  dotat::RefPtr<dotat::Scope> scope(new dotat::Scope);
+  dotat::RefPtr<dotat::Expr> rcvr(new dotat::SelfExpr);
+  dotat::RefPtr<dotat::Expr> arg(new dotat::ValExpr(m_interp->num_val(1111)));
+  dotat::RefPtr<dotat::Expr> expr(new dotat::SendMethodExpr(rcvr, "m", arg));
+  dotat::Val self_val(2222, new dotat::Obj);
+  dotat::Tail tail;
+
+  self_val.obj()->def_method("m", dotat::Method("x", expr));
+  m_interp->push_scope(scope);
+  m_interp->top_scope()->set_self(self_val);
+  dotat::Val val=expr->eval(*m_interp, &tail);
+
+  CPPUNIT_ASSERT(val.obj().get()==0);
+  CPPUNIT_ASSERT_EQUAL(expr.get(), tail.expr.get());
+  CPPUNIT_ASSERT_EQUAL(2222, tail.scope->self().i());
+  CPPUNIT_ASSERT_EQUAL(self_val.obj().get(), tail.scope->self().obj().get());
+  m_interp->pop_scope();
+}
+
+void TestExpr::test_detect_tail_recursion()
+{
+  dotat::RefPtr<dotat::Scope> scope(new dotat::Scope);
+  // x.>(0).|(@.m(x.-(1)))
+  dotat::RefPtr<dotat::Expr> e0(new dotat::VarExpr("x"));
+  dotat::RefPtr<dotat::Expr> e_0(new dotat::ValExpr(m_interp->num_val(0)));
+  dotat::RefPtr<dotat::Expr> e1(new dotat::SendMethodExpr(e0, ">", e_0));
+  dotat::RefPtr<dotat::Expr> ea_rcvr(new dotat::SelfExpr);
+  dotat::RefPtr<dotat::Expr> eaa_x(new dotat::VarExpr("x"));
+  dotat::RefPtr<dotat::Expr> eaa_1(new dotat::ValExpr(m_interp->num_val(1)));
+  dotat::RefPtr<dotat::Expr> ea_arg(new dotat::SendMethodExpr(eaa_x, "-", eaa_1));
+  dotat::RefPtr<dotat::Expr> e_arg(new dotat::SendMethodExpr(ea_rcvr,"m", ea_arg));
+  dotat::RefPtr<dotat::Expr> e(new dotat::SendMethodExpr(e1, "|", e_arg));
+  dotat::Val self_val(1111, new dotat::Obj);
+  dotat::Tail tail;
+
+  self_val.obj()->def_method("m", dotat::Method("x", e));
+  m_interp->push_scope(scope);
+  m_interp->top_scope()->set_self(self_val);
+  dotat::Val e_r=e->eval(*m_interp, &tail);
+
+  CPPUNIT_ASSERT(e_r.obj().get()==0);
+  CPPUNIT_ASSERT_EQUAL(e.get(), tail.expr.get());
+  CPPUNIT_ASSERT_EQUAL(1111, tail.scope->self().i());
+  CPPUNIT_ASSERT_EQUAL(self_val.obj().get(), tail.scope->self().obj().get());
+  CPPUNIT_ASSERT(tail.scope->is_var("x"));
+  CPPUNIT_ASSERT_EQUAL(ea_arg.get(), tail.scope->var("x").expr().get());
+  m_interp->pop_scope();
+}
+
 //
 // TestParser
 //

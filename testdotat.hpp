@@ -132,6 +132,8 @@ public:
   void test_define_and_send_self_method_2_args();
   void test_evaluate_determined_method();
   void test_evaluate_undetermined_method();
+  void test_detect_infinite_tail_recursion();
+  void test_detect_tail_recursion();
 
   CPPUNIT_TEST_SUITE(TestExpr);
   CPPUNIT_TEST(test_evaluate_val_expr);
@@ -148,6 +150,8 @@ public:
   CPPUNIT_TEST(test_define_and_send_self_method_2_args);
   CPPUNIT_TEST(test_evaluate_determined_method);
   CPPUNIT_TEST(test_evaluate_undetermined_method);
+  CPPUNIT_TEST(test_detect_infinite_tail_recursion);
+  CPPUNIT_TEST(test_detect_tail_recursion);
   CPPUNIT_TEST_SUITE_END();
 };
 

@@ -27,7 +27,7 @@ namespace dotat
   {
   }
 
-  Val Expr::eval_in(Interp &interp)
+  Val Expr::eval_in(Interp &interp, const Ptr<Tail> &tail)
   {
     RefPtr<Scope> tmp_top_scope=interp.top_scope();
     Val tmp_r;
@@ -36,7 +36,7 @@ namespace dotat
       PopScopeGuard ps_guard(interp, tmp_top_scope);
 
       //interp.pop_scope();
-      tmp_r=eval(interp);
+      tmp_r=eval(interp, tail);
       //interp.push_scope(tmp_top_scope);
     }
     return tmp_r;
@@ -71,11 +71,11 @@ namespace dotat
   // Val
   //
 
-  Val Val::send_method(const string &name, Interp &interp, const RefPtr<Expr> &arg) const
+  Val Val::send_method(const string &name, Interp &interp, const RefPtr<Expr> &arg, const Ptr<Tail> &tail) const
   {
     if(m_obj->is_method(name)) {
       Method tmp_method=m_obj->method(name);
-      Val tmp_r=tmp_method.call(interp, *this, arg);
+      Val tmp_r=tmp_method.call(interp, *this, arg, tail);
 
       interp.set_last_method(tmp_method);
       return tmp_r;
@@ -89,13 +89,13 @@ namespace dotat
   // Var
   //
 
-  Val Var::eval(Interp &interp) const
+  Val Var::eval(Interp &interp, const Ptr<Tail> &tail) const
   {
     PushScopeGuard ps_guard(interp, m_scope);
     Val tmp_r;
 
     //interp.push_scope(m_scope);
-    tmp_r=m_expr->eval(interp);
+    tmp_r=m_expr->eval(interp, tail);
     //interp.pop_scope();
     return tmp_r;
   }
@@ -108,12 +108,12 @@ namespace dotat
   {
   }
 
-  Val Scope::eval_var(const string &name, Interp &interp) const
+  Val Scope::eval_var(const string &name, Interp &interp, const Ptr<Tail> &tail) const
   {
     if(is_var(name)) {
       Var tmp_var=var(name);
 
-      return tmp_var.eval(interp);
+      return tmp_var.eval(interp, tail);
     } else {
       return interp.nil_val();
     }
@@ -123,7 +123,7 @@ namespace dotat
   // Method
   //
 
-  Val Method::call(Interp &interp, const Val &rcvr, const RefPtr<Expr> &arg) const
+  Val Method::call(Interp &interp, const Val &rcvr, const RefPtr<Expr> &arg, const Ptr<Tail> &tail) const
   {
     PushScopeGuard ps_guard(interp, new Scope(rcvr.obj()->scope()));
     Val tmp_r;
@@ -137,7 +137,20 @@ namespace dotat
     }
     if(m_expr.get()!=0) {
       interp.top_scope()->def_var(m_arg_name, Var(arg, interp.prev_scope()));
+#if 0
       tmp_r=m_expr->eval(interp);
+#else
+      if(tail.get()==0) {
+        Tail tmp_tail;
+
+        while((tmp_r=m_expr->eval(interp, &tmp_tail)).obj().get()==0) {
+          interp.pop_scope();
+          interp.push_scope(tmp_tail.scope);
+        }
+      } else {
+        tmp_r=m_expr->eval(interp, tail);
+      }
+#endif
     } else {
       tmp_r=(*m_fptr)(interp, arg, m_data);
     }
@@ -171,8 +184,15 @@ namespace dotat
     return Ptr<Expr>(new ValExpr(*this));
   }
 
-  Val ValExpr::eval(Interp &interp)
+  Val ValExpr::eval(Interp &interp, const Ptr<Tail> &tail)
   {
+#if 1
+    // detect tail recursion
+    if(tail.get()!=0 && tail->expr.get()==this) {
+      tail->scope=interp.top_scope();
+      return Val();
+    }
+#endif
     return m_val;
   }
 
@@ -197,9 +217,16 @@ namespace dotat
     return Ptr<Expr>(new VarExpr(*this));
   }
 
-  Val VarExpr::eval(Interp &interp)
+  Val VarExpr::eval(Interp &interp, const Ptr<Tail> &tail)
   {
-    return interp.top_scope()->eval_var(m_var_name, interp);
+#if 1
+    // detect tail recursion
+    if(tail.get()!=0 && tail->expr.get()==this) {
+      tail->scope=interp.top_scope();
+      return Val();
+    }
+#endif
+    return interp.top_scope()->eval_var(m_var_name, interp, tail);
   }
 
   string VarExpr::str() const
@@ -225,8 +252,15 @@ namespace dotat
     return Ptr<Expr>(new SelfExpr(*this));
   }
 
-  Val SelfExpr::eval(Interp &interp)
+  Val SelfExpr::eval(Interp &interp, const Ptr<Tail> &tail)
   {
+#if 1
+    // detect tail recursion
+    if(tail.get()!=0 && tail->expr.get()==this) {
+      tail->scope=interp.top_scope();
+      return Val();
+    }
+#endif
     return interp.top_scope()->self();
   }
 
@@ -248,20 +282,35 @@ namespace dotat
     return Ptr<Expr>(new SendMethodExpr(*this));
   }
 
-  Val SendMethodExpr::eval(Interp &interp)
+  Val SendMethodExpr::eval(Interp &interp, const Ptr<Tail> &tail)
   {
+#if 1
+    if(tail.get()!=0) {
+      // detect tail recursion
+      if(tail->expr.get()==this) {
+        tail->scope=interp.top_scope();
+        return Val();
+      }
+      if(tail->expr.get()==0) {
+        tail->expr=Ptr<Expr>(this);
+      }
+    }
+#endif
     if(!is_eval()) {
       Val tmp_r, tmp_rcvr=rcvr()->eval(interp);
 
-      tmp_r=tmp_rcvr.send_method(m_method_name, interp, m_arg);
+      tmp_r=tmp_rcvr.send_method(m_method_name, interp, m_arg, tail);
 #if 1
-      const Method &last_method=interp.last_method();
+      if(tmp_r.obj().get()!=0) {
+        // evaluated value
+        const Method &last_method=interp.last_method();
 
-      set_determ(m_rcvr->is_determ() && last_method.is_determ());
-      if(m_rcvr->is_eval()) {
-        if(last_method.is_determ() && (!last_method.can_eval_arg() || !m_arg->has_var())) {
-          set_eval(true);
-          m_eval_val=tmp_r;
+        set_determ(m_rcvr->is_determ() && last_method.is_determ());
+        if(m_rcvr->is_eval()) {
+          if(last_method.is_determ() && (!last_method.can_eval_arg() || !m_arg->has_var())) {
+            set_eval(true);
+            m_eval_val=tmp_r;
+          }
         }
       }
 #endif
@@ -616,10 +665,12 @@ namespace dotat
       return interp.nil_val();
     }
 
+#if 0
     Val nil_or(Interp &interp, const RefPtr<Expr> &arg, const RefPtr<Obj> &/*data*/)
     {
       return arg->eval_in(interp);
     }
+#endif
 
     //
     // nonil
@@ -630,10 +681,12 @@ namespace dotat
       return interp.nil_val();
     }
 
+#if 0
     Val nonil_and(Interp &interp, const RefPtr<Expr> &arg, const RefPtr<Obj> &/*data*/)
     {
       return arg->eval_in(interp);
     }
+#endif
 
     Val nonil_or(Interp &interp, const RefPtr<Expr> &arg, const RefPtr<Obj> &/*data*/)
     {
@@ -1034,14 +1087,16 @@ namespace dotat
     m_nil_obj=RefPtr<Obj>(m_any_obj->clone());
     m_nil_obj->def_method("~", Method(nil_not, true));
     m_nil_obj->def_method("&", Method(nil_and, true, false));
-    m_nil_obj->def_method("|", Method(nil_or, true));
+    //m_nil_obj->def_method("|", Method(nil_or, true));
+    m_nil_obj->def_method("|", Method("x", new VarExpr("x")));
   }
 
   void Interp::init_nonil_obj()
   {
     m_nonil_obj=RefPtr<Obj>(m_any_obj->clone());
     m_nonil_obj->def_method("~", Method(nonil_not, true, false));
-    m_nonil_obj->def_method("&", Method(nonil_and, true));
+    //m_nonil_obj->def_method("&", Method(nonil_and, true));
+    m_nonil_obj->def_method("&", Method("x", new VarExpr("x")));
     m_nonil_obj->def_method("|", Method(nonil_or, true, false));
   }
 

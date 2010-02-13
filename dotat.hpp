@@ -307,6 +307,7 @@ namespace dotat
     }
   };
 
+  struct Tail;
   class Expr;
   class Val;
   class Scope;
@@ -318,6 +319,16 @@ namespace dotat
   class Parser;
   class ParseError;
   class Interp;
+
+  //
+  // Tail
+  //
+
+  struct Tail
+  {
+    Ptr<Expr> expr;
+    RefPtr<Scope> scope;
+  };
 
   //
   // Expr
@@ -332,9 +343,9 @@ namespace dotat
   public:
     virtual ~Expr();
     virtual Ptr<Expr> clone() const=0;
-    virtual Val eval(Interp &/*interp*/)=0;
+    virtual Val eval(Interp &/*interp*/, const Ptr<Tail> &/*tail*/=Ptr<Tail>())=0;
     virtual std::string str() const=0;
-    Val eval_in(Interp &interp);
+    Val eval_in(Interp &interp, const Ptr<Tail> &tail=Ptr<Tail>());
     virtual const RefPtr<Expr> left() const;
     virtual const RefPtr<Expr> right() const;
     virtual bool set_left(const RefPtr<Expr> &/*left*/);
@@ -386,7 +397,7 @@ namespace dotat
     int m_i;
     RefPtr<Obj> m_obj;
   public:
-    Val send_method(const std::string &name, Interp &interp, const RefPtr<Expr> &arg) const;
+    Val send_method(const std::string &name, Interp &interp, const RefPtr<Expr> &arg, const Ptr<Tail> &tail=Ptr<Tail>()) const;
 
     Val()
       : m_i(0)
@@ -418,7 +429,7 @@ namespace dotat
     RefPtr<Expr> m_expr;
     RefPtr<Scope> m_scope;
   public:
-    Val eval(Interp &interp) const;
+    Val eval(Interp &interp, const Ptr<Tail> &tail=Ptr<Tail>()) const;
 
     Var()
     {
@@ -452,7 +463,7 @@ namespace dotat
     Val m_first_self;
   public:
     virtual ~Scope();
-    Val eval_var(const std::string &name, Interp &interp) const;
+    Val eval_var(const std::string &name, Interp &interp, const Ptr<Tail> &tail=Ptr<Tail>()) const;
 
     bool is_var(const std::string &name) const
     {
@@ -510,7 +521,7 @@ namespace dotat
     bool m_can_eval_arg;
     bool m_has_first_self;
   public:
-    Val call(Interp &interp, const Val &rcvr, const RefPtr<Expr> &arg) const;
+    Val call(Interp &interp, const Val &rcvr, const RefPtr<Expr> &arg, const Ptr<Tail> &tail=Ptr<Tail>()) const;
 
     Method()
       : m_fptr(0), m_is_determ(true), m_can_eval_arg(true), m_has_first_self(false)
@@ -684,7 +695,7 @@ namespace dotat
   public:
     virtual ~ValExpr();
     virtual Ptr<Expr> clone() const;
-    virtual Val eval(Interp &interp);
+    virtual Val eval(Interp &interp, const Ptr<Tail> &tail);
     virtual std::string str() const;
 
     ValExpr(const Val &val)
@@ -709,7 +720,7 @@ namespace dotat
   public:
     virtual ~VarExpr();
     virtual Ptr<Expr> clone() const;
-    virtual Val eval(Interp &interp);
+    virtual Val eval(Interp &interp, const Ptr<Tail> &tail);
     virtual std::string str() const;
     virtual RefPtr<Expr> substit(const std::string &var_name, const RefPtr<Expr> &expr);
 
@@ -734,7 +745,7 @@ namespace dotat
   public:
     virtual ~SelfExpr();
     virtual Ptr<Expr> clone() const;
-    virtual Val eval(Interp &interp);
+    virtual Val eval(Interp &interp, const Ptr<Tail> &tail);
     virtual std::string str() const;
 
     SelfExpr()
@@ -757,7 +768,7 @@ namespace dotat
   public:
     virtual ~SendMethodExpr();
     virtual Ptr<Expr> clone() const;
-    virtual Val eval(Interp &interp);
+    virtual Val eval(Interp &interp, const Ptr<Tail> &tail);
     virtual std::string str() const;
     virtual const RefPtr<Expr> left() const;
     virtual const RefPtr<Expr> right() const;
