@@ -435,7 +435,7 @@ namespace dotat
     {
     }
 
-    Var(const RefPtr<Expr> &expr, const RefPtr<Scope> scope)
+    Var(const RefPtr<Expr> &expr, const RefPtr<Scope> &scope)
       : m_expr(expr), m_scope(scope)
     {
     }
