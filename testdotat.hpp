@@ -204,6 +204,15 @@ public:
   void test_methods_of_arg_obj();
   void test_push_and_pop_one_scope();
   void test_push_and_pop_two_scopes();
+  void test_extract_tree_from_method();
+  void test_expr_l();
+  void test_expr_r();
+  void test_expr_sl();
+  void test_expr_sr();
+  void test_expr_s();
+  void test_expr_ss();
+  void test_expr_sc();
+  void test_expr_2n();
 
   CPPUNIT_TEST_SUITE(TestInterp);
   CPPUNIT_TEST(test_methods_of_nil_obj);
@@ -212,6 +221,15 @@ public:
   CPPUNIT_TEST(test_methods_of_arg_obj);
   CPPUNIT_TEST(test_push_and_pop_one_scope);
   CPPUNIT_TEST(test_push_and_pop_two_scopes);
+  CPPUNIT_TEST(test_extract_tree_from_method);
+  CPPUNIT_TEST(test_expr_l);
+  CPPUNIT_TEST(test_expr_r);
+  CPPUNIT_TEST(test_expr_sl);
+  CPPUNIT_TEST(test_expr_sr);
+  CPPUNIT_TEST(test_expr_s);
+  CPPUNIT_TEST(test_expr_ss);
+  CPPUNIT_TEST(test_expr_sc);
+  CPPUNIT_TEST(test_expr_2n);
   CPPUNIT_TEST_SUITE_END();
 };
 

@@ -1128,6 +1128,202 @@ void TestInterp::test_push_and_pop_two_scopes()
   CPPUNIT_ASSERT_EQUAL(1U, m_interp->scopes_count());
 }
 
+void TestInterp::test_extract_tree_from_method()
+{
+  istringstream iss("0.d(m1).a(x).e(x.m2(1)).t(m1)");
+  dotat::RefPtr<dotat::Expr> expr(m_interp->parse(iss));
+  dotat::Val val=expr->eval(*m_interp);
+
+  CPPUNIT_ASSERT(val.obj()->is_method("m"));
+  dotat::RefPtr<dotat::Expr> tree=val.obj()->method("m").expr();
+  dotat::SendMethodExpr *treep=dynamic_cast<dotat::SendMethodExpr *>(tree.get());
+
+  CPPUNIT_ASSERT(treep!=0);
+  CPPUNIT_ASSERT_EQUAL(string("m2"), treep->method_name());
+  dotat::RefPtr<dotat::Expr> left=tree->left();
+  dotat::VarExpr *leftp=dynamic_cast<dotat::VarExpr *>(left.get());
+
+  CPPUNIT_ASSERT(leftp!=0);
+  CPPUNIT_ASSERT_EQUAL(string("x"), leftp->var_name());
+  dotat::RefPtr<dotat::Expr> right=tree->right();
+  dotat::ValExpr *rightp=dynamic_cast<dotat::ValExpr *>(right.get());
+
+  CPPUNIT_ASSERT(rightp!=0);
+  CPPUNIT_ASSERT_EQUAL(1, rightp->val().i());
+  CPPUNIT_ASSERT_EQUAL(m_interp->num_obj().get(), rightp->val().obj().get());
+}
+
+void TestInterp::test_expr_l()
+{
+  istringstream iss1("0.d(m1).a(x).e(l1.m2(r1)).t(m1).l(0)");
+  dotat::RefPtr<dotat::Expr> expr1(m_interp->parse(iss1));
+  dotat::Val val1=expr1->eval(*m_interp);
+
+  CPPUNIT_ASSERT(val1.obj()->is_method("m"));
+  dotat::RefPtr<dotat::Expr> tree1=val1.obj()->method("m").expr();
+  dotat::VarExpr *treep1=dynamic_cast<dotat::VarExpr *>(tree1.get());
+
+  CPPUNIT_ASSERT(treep1!=0);
+  CPPUNIT_ASSERT_EQUAL(string("l1"), treep1->var_name());
+  istringstream iss2("0.d(m1).a(x).e(1).t(m1).l(0)");
+  dotat::RefPtr<dotat::Expr> expr2(m_interp->parse(iss2));
+  dotat::Val val2=expr2->eval(*m_interp);
+
+  CPPUNIT_ASSERT_EQUAL(m_interp->nil_obj().get(), val2.obj().get());
+}
+
+void TestInterp::test_expr_r()
+{
+  istringstream iss1("0.d(m1).a(x).e(l1.m2(r1)).t(m1).r(0)");
+  dotat::RefPtr<dotat::Expr> expr1(m_interp->parse(iss1));
+  dotat::Val val1=expr1->eval(*m_interp);
+
+  CPPUNIT_ASSERT(val1.obj()->is_method("m"));
+  dotat::RefPtr<dotat::Expr> tree1=val1.obj()->method("m").expr();
+  dotat::VarExpr *treep1=dynamic_cast<dotat::VarExpr *>(tree1.get());
+
+  CPPUNIT_ASSERT(treep1!=0);
+  CPPUNIT_ASSERT_EQUAL(string("r1"), treep1->var_name());
+  istringstream iss2("0.d(m1).a(x).e(1).t(m1).r(0)");
+  dotat::RefPtr<dotat::Expr> expr2(m_interp->parse(iss2));
+  dotat::Val val2=expr2->eval(*m_interp);
+
+  CPPUNIT_ASSERT_EQUAL(m_interp->nil_obj().get(), val2.obj().get());
+}
+
+void TestInterp::test_expr_sl()
+{
+  istringstream iss1("0.d(m1).a(x).e(l1.m2(r1)).t(m1).sl(0.d(m).a(x).e(l2))");
+  dotat::RefPtr<dotat::Expr> expr1(m_interp->parse(iss1));
+  dotat::Val val1=expr1->eval(*m_interp);
+
+  CPPUNIT_ASSERT(val1.obj()->is_method("m"));
+  dotat::RefPtr<dotat::Expr> tree1=val1.obj()->method("m").expr();
+  dotat::SendMethodExpr *treep1=dynamic_cast<dotat::SendMethodExpr *>(tree1.get());
+
+  CPPUNIT_ASSERT(treep1!=0);
+  CPPUNIT_ASSERT_EQUAL(string("m2"), treep1->method_name());
+  dotat::RefPtr<dotat::Expr> left1=tree1->left();
+  dotat::VarExpr *leftp1=dynamic_cast<dotat::VarExpr *>(left1.get());
+
+  CPPUNIT_ASSERT(leftp1!=0);
+  CPPUNIT_ASSERT_EQUAL(string("l2"), leftp1->var_name());
+  dotat::RefPtr<dotat::Expr> right1=tree1->right();
+  dotat::VarExpr *rightp1=dynamic_cast<dotat::VarExpr *>(right1.get());
+
+  CPPUNIT_ASSERT(rightp1!=0);
+  CPPUNIT_ASSERT_EQUAL(string("r1"), rightp1->var_name());
+  istringstream iss2("0.d(m1).a(x).e(x).t(m1).sl(0.d(m).a(x).e(l2))");
+  dotat::RefPtr<dotat::Expr> expr2(m_interp->parse(iss2));
+  dotat::Val val2=expr2->eval(*m_interp);
+
+  CPPUNIT_ASSERT_EQUAL(m_interp->nil_obj().get(), val2.obj().get());
+}
+
+void TestInterp::test_expr_sr()
+{
+  istringstream iss1("0.d(m1).a(x).e(l1.m2(r1)).t(m1).sr(0.d(m).a(x).e(r2))");
+  dotat::RefPtr<dotat::Expr> expr1(m_interp->parse(iss1));
+  dotat::Val val1=expr1->eval(*m_interp);
+
+  CPPUNIT_ASSERT(val1.obj()->is_method("m"));
+  dotat::RefPtr<dotat::Expr> tree1=val1.obj()->method("m").expr();
+  dotat::SendMethodExpr *treep1=dynamic_cast<dotat::SendMethodExpr *>(tree1.get());
+
+  CPPUNIT_ASSERT(treep1!=0);
+  CPPUNIT_ASSERT_EQUAL(string("m2"), treep1->method_name());
+  dotat::RefPtr<dotat::Expr> left1=tree1->left();
+  dotat::VarExpr *leftp1=dynamic_cast<dotat::VarExpr *>(left1.get());
+
+  CPPUNIT_ASSERT(leftp1!=0);
+  CPPUNIT_ASSERT_EQUAL(string("l1"), leftp1->var_name());
+  dotat::RefPtr<dotat::Expr> right1=tree1->right();
+  dotat::VarExpr *rightp1=dynamic_cast<dotat::VarExpr *>(right1.get());
+
+  CPPUNIT_ASSERT(rightp1!=0);
+  CPPUNIT_ASSERT_EQUAL(string("r2"), rightp1->var_name());
+  istringstream iss2("0.d(m1).a(x).e(x).t(m1).sr(0.d(m).a(x).e(l2))");
+  dotat::RefPtr<dotat::Expr> expr2(m_interp->parse(iss2));
+  dotat::Val val2=expr2->eval(*m_interp);
+
+  CPPUNIT_ASSERT_EQUAL(m_interp->nil_obj().get(), val2.obj().get());
+}
+
+void TestInterp::test_expr_s()
+{
+  istringstream iss1("0.d(m1).a(x).e(x).t(m1).s(x).a(0.d(m).a(y).e(y))");
+  dotat::RefPtr<dotat::Expr> expr1(m_interp->parse(iss1));
+  dotat::Val val1=expr1->eval(*m_interp);
+
+  CPPUNIT_ASSERT(val1.obj()->is_method("m"));
+  dotat::RefPtr<dotat::Expr> tree1=val1.obj()->method("m").expr();
+  dotat::VarExpr *treep1=dynamic_cast<dotat::VarExpr *>(tree1.get());
+
+  CPPUNIT_ASSERT(treep1!=0);
+  CPPUNIT_ASSERT_EQUAL(string("y"), treep1->var_name());
+  istringstream iss2("0.d(m1).a(x).e(1111).t(m1).s(x).a(0.d(m).a(y).e(y))");
+  dotat::RefPtr<dotat::Expr> expr2(m_interp->parse(iss2));
+  dotat::Val val2=expr2->eval(*m_interp);
+
+  CPPUNIT_ASSERT(val2.obj()->is_method("m"));
+  dotat::RefPtr<dotat::Expr> tree2=val2.obj()->method("m").expr();
+  dotat::ValExpr *treep2=dynamic_cast<dotat::ValExpr *>(tree2.get());
+
+  CPPUNIT_ASSERT(treep2!=0);
+  CPPUNIT_ASSERT_EQUAL(1111, treep2->val().i());
+  CPPUNIT_ASSERT_EQUAL(m_interp->num_obj().get(), treep2->val().obj().get());
+}
+
+void TestInterp::test_expr_ss()
+{
+  istringstream iss1("0.d(m1).a(x).e(abcd).t(m1).ss(1).a(2)");
+  dotat::RefPtr<dotat::Expr> expr1(m_interp->parse(iss1));
+  dotat::Val val1=expr1->eval(*m_interp);
+
+  CPPUNIT_ASSERT(val1.obj()->is_method("m"));
+  dotat::RefPtr<dotat::Expr> tree1=val1.obj()->method("m").expr();
+  dotat::VarExpr *treep1=dynamic_cast<dotat::VarExpr *>(tree1.get());
+
+  CPPUNIT_ASSERT(treep1!=0);
+  CPPUNIT_ASSERT_EQUAL(string("bc"), treep1->var_name());
+
+  istringstream iss2("0.d(m1).a(x).e(abcd).t(m1).ss(10).a(1)");
+  dotat::RefPtr<dotat::Expr> expr2(m_interp->parse(iss2));
+  dotat::Val val2=expr2->eval(*m_interp);
+
+  CPPUNIT_ASSERT_EQUAL(m_interp->nil_obj().get(), val2.obj().get());
+  istringstream iss3("0.d(m1).a(x).e(abcd).t(m1).ss(1).a(-1)");
+  dotat::RefPtr<dotat::Expr> expr3(m_interp->parse(iss3));
+  dotat::Val val3=expr3->eval(*m_interp);
+
+  CPPUNIT_ASSERT(val3.obj()->is_method("m"));
+  dotat::RefPtr<dotat::Expr> tree3=val3.obj()->method("m").expr();
+  dotat::VarExpr *treep3=dynamic_cast<dotat::VarExpr *>(tree3.get());
+
+  CPPUNIT_ASSERT(treep3!=0);
+  CPPUNIT_ASSERT_EQUAL(string("bcd"), treep3->var_name());
+}
+
+void TestInterp::test_expr_sc()
+{
+  istringstream iss("0.d(m1).a(x).e(aaa).t(m1).sc(0.d(m).a(x).e(ddd))");
+  dotat::RefPtr<dotat::Expr> expr(m_interp->parse(iss));
+  dotat::Val val=expr->eval(*m_interp);
+
+  CPPUNIT_ASSERT_EQUAL(-1, val.i());
+  CPPUNIT_ASSERT_EQUAL(m_interp->num_obj().get(), val.obj().get());
+}
+
+void TestInterp::test_expr_2n()
+{
+ istringstream iss("0.d(m1).a(x).e(\\1234).t(m1).2n(0)");
+  dotat::RefPtr<dotat::Expr> expr(m_interp->parse(iss));
+  dotat::Val val=expr->eval(*m_interp);
+
+  CPPUNIT_ASSERT_EQUAL(1234, val.i());
+  CPPUNIT_ASSERT_EQUAL(m_interp->num_obj().get(), val.obj().get());
+}
+
 int main(int argc, char *argv[])
 {
   CppUnit::TextUi::TestRunner runner;
