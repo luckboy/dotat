@@ -428,8 +428,9 @@ namespace dotat
   {
     RefPtr<Expr> m_expr;
     RefPtr<Scope> m_scope;
+    Val m_eval_val;
   public:
-    Val eval(Interp &interp, const Ptr<Tail> &tail=Ptr<Tail>()) const;
+    Val eval(Interp &interp, const Ptr<Tail> &tail=Ptr<Tail>());
 
     Var()
     {
@@ -463,7 +464,7 @@ namespace dotat
     Val m_first_self;
   public:
     virtual ~Scope();
-    Val eval_var(const std::string &name, Interp &interp, const Ptr<Tail> &tail=Ptr<Tail>()) const;
+    Val eval_var(const std::string &name, Interp &interp, const Ptr<Tail> &tail=Ptr<Tail>());
 
     bool is_var(const std::string &name) const
     {

@@ -89,15 +89,21 @@ namespace dotat
   // Var
   //
 
-  Val Var::eval(Interp &interp, const Ptr<Tail> &tail) const
+  Val Var::eval(Interp &interp, const Ptr<Tail> &tail)
   {
-    PushScopeGuard ps_guard(interp, m_scope);
-    Val tmp_r;
+    if(m_scope.get()!=0) {
+      PushScopeGuard ps_guard(interp, m_scope);
+      Val tmp_r;
 
-    //interp.push_scope(m_scope);
-    tmp_r=m_expr->eval(interp, tail);
-    //interp.pop_scope();
-    return tmp_r;
+      //interp.push_scope(m_scope);
+      tmp_r=m_expr->eval(interp, tail);
+      m_eval_val=tmp_r;
+      m_scope=RefPtr<Scope>();
+      //interp.pop_scope();
+      return tmp_r;
+    } else {
+      return m_eval_val;
+    }
   }
 
   //
@@ -108,12 +114,15 @@ namespace dotat
   {
   }
 
-  Val Scope::eval_var(const string &name, Interp &interp, const Ptr<Tail> &tail) const
+  Val Scope::eval_var(const string &name, Interp &interp, const Ptr<Tail> &tail)
   {
     if(is_var(name)) {
       Var tmp_var=var(name);
+      Val tmp_r;
 
-      return tmp_var.eval(interp, tail);
+      tmp_r=tmp_var.eval(interp, tail);
+      def_var(name, tmp_var);
+      return tmp_r;
     } else {
       return interp.nil_val();
     }

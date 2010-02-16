@@ -209,13 +209,13 @@ void TestMethod::test_call_curring_method()
   dotat::Method method2("x2", expr2);
 
   // method 1 (used first argument)
-  rcvr.obj()->scope().def_var("x1", dotat::Var(arg1, 0));
+  rcvr.obj()->scope().def_var("x1", dotat::Var(arg1, m_interp->top_scope()));
   dotat::Val r1=method1.call(*m_interp, rcvr, arg2);
 
   CPPUNIT_ASSERT_EQUAL(2222, r1.i());
   CPPUNIT_ASSERT_EQUAL(arg_val1.obj().get(), r1.obj().get());
   // method 2 (used second argument)
-  rcvr.obj()->scope().def_var("x1", dotat::Var(arg1, 0));
+  rcvr.obj()->scope().def_var("x1", dotat::Var(arg1, m_interp->top_scope()));
   dotat::Val r2=method2.call(*m_interp, rcvr, arg2);
 
   CPPUNIT_ASSERT_EQUAL(3333, r2.i());
@@ -770,6 +770,37 @@ void TestExpr::test_substitution()
   CPPUNIT_ASSERT(new_e3->right().get()!=r3.get());
   CPPUNIT_ASSERT(new_e3->right()->left().get()==rl3.get());
   CPPUNIT_ASSERT(new_e3->right()->right().get()==e4.get());
+}
+
+void TestExpr::test_evaluate_variable_value()
+{
+  dotat::RefPtr<dotat::Scope> scope(new dotat::Scope);
+  dotat::RefPtr<dotat::Expr> se_rcvr(new dotat::ValExpr(m_interp->num_val(1111)));
+  dotat::RefPtr<dotat::Expr> se_arg(new dotat::ValExpr(m_interp->num_val(2222)));
+  dotat::RefPtr<dotat::Expr> subexpr(new dotat::SendMethodExpr(se_rcvr, "+", se_arg));
+  dotat::RefPtr<dotat::Expr> e1_rcvr(new dotat::VarExpr("x"));
+  dotat::RefPtr<dotat::Expr> e1_arg(new dotat::ValExpr(m_interp->num_val(2)));
+  dotat::RefPtr<dotat::Expr> expr1(new dotat::SendMethodExpr(e1_rcvr, "*", e1_arg));
+  dotat::RefPtr<dotat::Expr> e2_rcvr(new dotat::VarExpr("x"));
+  dotat::RefPtr<dotat::Expr> e2_arg(new dotat::ValExpr(m_interp->num_val(1010)));
+  dotat::RefPtr<dotat::Expr> expr2(new dotat::SendMethodExpr(e2_rcvr, "-", e2_arg));
+
+  scope->def_var("x", dotat::Var(subexpr, m_interp->top_scope()));
+  m_interp->push_scope(scope);
+  CPPUNIT_ASSERT(m_interp->top_scope()->is_var("x"));
+  CPPUNIT_ASSERT(m_interp->top_scope()->var("x").scope().get()!=0);
+  // expr 1
+  dotat::Val val1=expr1->eval(*m_interp);
+
+  CPPUNIT_ASSERT_EQUAL(6666, val1.i());
+  CPPUNIT_ASSERT_EQUAL(m_interp->num_obj().get(), val1.obj().get());
+  CPPUNIT_ASSERT(m_interp->top_scope()->var("x").scope().get()==0);
+  // expr 2
+  dotat::Val val2=expr2->eval(*m_interp);
+
+  CPPUNIT_ASSERT_EQUAL(2323, val2.i());
+  CPPUNIT_ASSERT_EQUAL(m_interp->num_obj().get(), val2.obj().get());
+  CPPUNIT_ASSERT(m_interp->top_scope()->var("x").scope().get()==0);
 }
 
 //
