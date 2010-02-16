@@ -1008,6 +1008,43 @@ void TestParser::test_skip_comment()
   CPPUNIT_ASSERT_EQUAL(string("x"), argp2->var_name());
 }
 
+void TestParser::test_empty_method_name()
+{
+  // @.(x)
+  istringstream iss("@.(x)");
+  dotat::Parser parser(iss);
+  dotat::RefPtr<dotat::Expr> expr=parser.parse(*m_interp);
+  dotat::SendMethodExpr *exprp=dynamic_cast<dotat::SendMethodExpr *>(expr.get());
+
+  CPPUNIT_ASSERT(exprp!=0);
+  CPPUNIT_ASSERT_EQUAL(string(""), exprp->method_name());
+}
+
+void TestParser::test_empty_var_name()
+{
+  //
+  istringstream iss1("");
+  dotat::Parser parser1(iss1);
+  dotat::RefPtr<dotat::Expr> expr1=parser1.parse(*m_interp);
+  dotat::VarExpr *exprp1=dynamic_cast<dotat::VarExpr *>(expr1.get());
+
+  CPPUNIT_ASSERT(exprp1!=0);
+  CPPUNIT_ASSERT_EQUAL(string(""), exprp1->var_name());
+
+  //
+  istringstream iss2("x.m()");
+  dotat::Parser parser2(iss2);
+  dotat::RefPtr<dotat::Expr> expr2=parser2.parse(*m_interp);
+  dotat::SendMethodExpr *exprp2=dynamic_cast<dotat::SendMethodExpr *>(expr2.get());
+
+  CPPUNIT_ASSERT(exprp2!=0);
+  CPPUNIT_ASSERT_EQUAL(string("m"), exprp2->method_name());
+  dotat::VarExpr *argp2=dynamic_cast<dotat::VarExpr *>(exprp2->arg().get());
+
+  CPPUNIT_ASSERT(argp2!=0);
+  CPPUNIT_ASSERT_EQUAL(string(""), argp2->var_name());
+}
+
 //
 // TestInterp
 //

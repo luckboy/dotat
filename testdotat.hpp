@@ -177,6 +177,8 @@ public:
   void test_parse_expr_chain();
   void test_parse_expr_with_subexprs();
   void test_skip_comment();
+  void test_empty_method_name();
+  void test_empty_var_name();
 
   CPPUNIT_TEST_SUITE(TestParser);
   CPPUNIT_TEST(test_parse_val_expr);
@@ -186,6 +188,8 @@ public:
   CPPUNIT_TEST(test_parse_expr_chain);
   CPPUNIT_TEST(test_parse_expr_with_subexprs);
   CPPUNIT_TEST(test_skip_comment);
+  CPPUNIT_TEST(test_empty_method_name);
+  CPPUNIT_TEST(test_empty_var_name);
   CPPUNIT_TEST_SUITE_END();
 };
 
