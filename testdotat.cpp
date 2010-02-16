@@ -695,6 +695,7 @@ void TestExpr::test_detect_infinite_tail_recursion()
 
   CPPUNIT_ASSERT(val.obj().get()==0);
   CPPUNIT_ASSERT_EQUAL(expr.get(), tail.expr.get());
+  CPPUNIT_ASSERT(tail.scope.get()!=scope.get());
   CPPUNIT_ASSERT_EQUAL(2222, tail.scope->self().i());
   CPPUNIT_ASSERT_EQUAL(self_val.obj().get(), tail.scope->self().obj().get());
   m_interp->pop_scope();
@@ -723,6 +724,7 @@ void TestExpr::test_detect_tail_recursion()
 
   CPPUNIT_ASSERT(e_r.obj().get()==0);
   CPPUNIT_ASSERT_EQUAL(e.get(), tail.expr.get());
+  CPPUNIT_ASSERT(tail.scope.get()!=scope.get());
   CPPUNIT_ASSERT_EQUAL(1111, tail.scope->self().i());
   CPPUNIT_ASSERT_EQUAL(self_val.obj().get(), tail.scope->self().obj().get());
   CPPUNIT_ASSERT(tail.scope->is_var("x"));

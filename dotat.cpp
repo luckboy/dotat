@@ -155,6 +155,7 @@ namespace dotat
         while((tmp_r=m_expr->eval(interp, &tmp_tail)).obj().get()==0) {
           interp.pop_scope();
           interp.push_scope(tmp_tail.scope);
+          tmp_tail.expr=Ptr<Expr>();
         }
       } else {
         tmp_r=m_expr->eval(interp, tail);
