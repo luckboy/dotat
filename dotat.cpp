@@ -142,9 +142,9 @@ namespace dotat
       interp.top_scope()->set_self(rcvr);
     } else {
       interp.top_scope()->set_self(interp.top_scope()->first_self());
-      interp.top_scope()->set_first_self(Val());
+      interp.top_scope()->unset_first_self();
     }
-    if(m_expr.get()!=0) {
+    if(is_expr()) {
       interp.top_scope()->def_var(m_arg_name, Var(arg, interp.prev_scope()));
 #if 0
       tmp_r=m_expr->eval(interp);
@@ -901,7 +901,7 @@ namespace dotat
 
       new_data->set_scope(*(interp.top_scope()));
       new_data->scope().def_var(data->arg_name(), new_var);
-      if(new_data->scope().first_self().obj().get()==0) {
+      if(!new_data->scope().is_first_self()) {
         new_data->scope().set_first_self(interp.top_scope()->self());
       }
       return Val(0, new_data);

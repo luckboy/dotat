@@ -497,6 +497,11 @@ namespace dotat
       m_self=self;
     }
 
+    bool is_first_self() const
+    {
+      return m_first_self.obj().get()!=0;
+    }
+
     const Val & first_self() const
     {
       return m_first_self;
@@ -505,6 +510,11 @@ namespace dotat
     void set_first_self(const Val &self)
     {
       m_first_self=self;
+    }
+
+    void unset_first_self()
+    {
+      m_first_self=Val();
     }
   };
 
@@ -576,6 +586,11 @@ namespace dotat
     bool has_first_self() const
     {
       return m_has_first_self;
+    }
+
+    bool is_expr() const
+    {
+      return m_expr.get()!=0;
     }
   };
 
