@@ -1,0 +1,162 @@
+WSTÊP
+
+  Opisywany tu jêzyk .@ jest jêzykiem ezoterycznym, który ³±czy paradygmat
+programowania funkcyjne z paradygmatem obiektowym. Celem autora by³o utworzenie
+jêzyka, który posiada³ by jednocze¶nie cechy jêzyka funkcyjnego i obiektowego
+oraz minimaln± sk³adnie.
+
+INTERPRETER
+
+  Jêzyk ten posiada napisany przez autora interpretera, który pozwala na
+wykonanie programów napisanych w tym jêzyku. Interpreter zosta³ napisany w
+typowo imperatywnym jêzyku programowania, ale który posiada cechy jêzyka
+obiektowego (jêzyk C++). Poni¿ej jest przedstawiona sposób u¿ycia interpretera:
+
+  dotatrun <plik z programem>
+
+Je¶li program jest nie poprawny to interpreter wy¶wietli b³±d z wskazaniem
+b³êdnej linii kodu. Interpreter pozwala te¿ na wykorzystanie standardowego
+wej¶cia i wyj¶cia przez program.
+
+OPIS JÊZYK
+
+  W tym jêzyku prawie wszystko jest obiektem, którego niemo¿na modyfikowaæ!
+Dostêp do zawarto¶ci obiektu jest tylko mo¿liwy przez wywo³anie na jego rzecz
+metody. Inn± szczególn± cech± jêzyka jest to ¿e argumenty s± przekazywane przez
+wyra¿enia, które s± obliczane gdy jest potrzeba (leniwe obliczanie) lub
+wykorzystywane (to nie b³±d). Poni¿ej jest przedstawiona sk³adnia jêzyka:
+
+  wyra¿enie ::= liczba | @ | zmienna | wyra¿enie . metoda ( wyra¿enie )
+  program ::= wyra¿enie
+
+Znak @ pozwala na dostêp do obiektu z metody, która zosta³a wywo³ana na rzecz
+tego obiektu. W tym jêzyku mo¿na równie¿ wstawiaæ komentarze, które zaczynaj±
+siê od ".@" a koñcz± na "@.". Poni¿ej jest przyk³adowe wyra¿enie w tym jêzyku:
+
+  x.+(y).>(10).&(1).|(2)
+
+  Metody w tym jêzyku mog± tylko posiadaæ jeden argument. Przekazywanie wiêkszej
+liczby argumentów wi±sze siê z wykorzystaniem currying'u. Jednak zamiast zwracaæ
+funkcje w tym przypadku zwraca siê obiekt z metod±. Przyk³ad przekazania wielu
+argumentów metodzie:
+
+  0.m(x1).a(x2).a(x3)
+
+Znak @ w metodzie która ostatecznie ma byæ wywo³ana odnosi siê do obiektu,
+którego zosta³a wywo³ana metoda z pierwszym argumentem.
+
+  Jêzyk ten posiada wbudowane metody dla poszczególnych rodzajów obiektów.
+Jednym z nich jest obiekt nil który pe³ni role warto¶ci false w operacjach
+logicznych. Ka¿dy obiekt jednak posiada warto¶æ liczbow± w przypadku obiektów
+liczb jest ona wykorzystywana w metodach. Poni¿ej s± przedstawiony opis obiektów
+oraz ich metod:
+
+  * Metody ka¿dego obiektu
+    + r.~(x) - negacja logiczna
+      Je¶li r jest nil to zwraca 0 w innym przypadku nil.
+    + r.&(x) - iloczyn logiczny
+      Je¶li r jest nil to zwraca  w innym przypadku x.
+    + r.|(x) - suma logiczna
+      Je¶li r nie jest nil to zwraca r innym przypadku x.
+    + r.d(m).a(x1). ... .a(xN).e(y) - definiowanie metody
+      Zwraca kopie r z dodan± lub przedefiniowan± z metod± o nazwie m z
+      argumentami x1 ... x2.
+    + r.u(m) - usuniecie metody
+      Zwraca kopie r ale bez metody o nazwie m.
+    + r.t(m) - wy³uskanie wyra¿enia
+      Zwraca obiekt wyra¿enia z wyra¿eniem z metody o nazwie m. Je¶li nie ma
+      metody o danej nazwie zwraca nil.
+    + r.g(x) - odczytanie znaku
+      Zwraca obiekt wyra¿enia z zmienn± o nazwie odczytanego znaku. Je¶li nie
+      mo¿na by³o odczytaæ znaku zwraca nil.
+    + r.p(x) - wypisywania wyra¿enia
+      Metoda ta wypisuje wyra¿enie przekszta³cone na napis i zwraca 0.
+
+  * Obiekt liczby
+    Te obiekty posiadaj± metody, które pozwalaj± przeprowadzaæ operacje
+    arytmetyczne na liczbach oraz je porównywaæ.
+
+  * Metody obiektu liczby:
+    + r.+(x) - dodawanie
+    + r.-(x) - odejmowanie
+    + r./(x) - dzielenie
+    + r.%(x) - reszta z dzielenia
+      Te metody zwracaj± wynik operacji na r i x. Metoda / i metoda % zwraca nil
+      je¶li x jest równe 0.
+    + r.=(x) - równe
+    + r.<>(x) - nierówne
+    + r.<(x) - mniejsze
+    + r.<=(x) - mniejsze lub równe
+    + r.>(x) - wiêksze
+    + r.>=(x) - wiêksze lub równe
+      Te metody zwracaj± liczbê 0, je¶li warunek zosta³ spe³niony w innym
+      przypadku nil.
+    + r.2t(x) - konwersja liczby do obiektu wyra¿enia
+      Zwraca obiekt wyra¿enia z r.
+
+  * Obiekt metody
+    Ten rodzaj obiektu zosta³ dodany w celu umo¿liwienia definiowania nowych
+    metod i jest to jego jedyne przeznaczenie.
+
+  * Metody obiektu metody
+    + r.a(x) - definicja argumentu
+    + r.e(x) - definiowanie cia³a metody
+
+  * Obiekt argumentu
+    Ten rodzaj obiektu zosta³ dodany w celu umo¿liwienia przekazywania wiêkszej
+    liczby argumentów ni¿ jeden.
+
+  * Metody obiektu argumentu
+    + r.a(x) - przekazanie argumentu
+
+  * Obiekt wyra¿enia
+    Te obiekty zawieraj± wyra¿enie, na które mo¿na traktowaæ jak drzewo binarne
+    lub ci±g znaków. Metody tych obiektów pozwalaj± na operowanie wyra¿eniami. W
+    przypadku ci±gów znaków wyra¿enia przekszta³ca wykorzystuj±c w wyra¿eniach:
+    liczby, nazwy i @. Przyk³ady przekszta³cenia wyra¿enia na ci±g znaków:
+
+      1234 -> 1234
+      @.+(x) -> @+x
+      x.m(12) -> xm12
+
+  * Metody obiektu wyra¿enia
+    + r.m(x) - metoda z wyra¿eniem
+      Zwraca wynik wyra¿enia z r.
+    + r.l(x) - lewa ga³±¼ drzewa
+    + r.r(x) - prawa ga³±¼ drzewa
+      Zwraca lew±/praw± ga³±¼ drzewa w postaci obiektu wyra¿enia. Je¶li jest to
+      niemo¿liwe zwraca nil.
+    + r.sl(x) - ustawianie lewej ga³êzi drzewa
+    + r.sr(x) - ustawianie prawej ga³êzi drzewa
+      Zwraca kopie r z ustawion± now± lew±/praw± ga³êzi± drzewa. Je¶li jest to
+      niemo¿liwe zwraca nil.
+    + r.s(v).a(y) - podstawienie
+      Zwraca kopie r z podstawianymi v na wyra¿enie z obiektu y. Je¶li jest to
+      niemo¿liwe zwraca nil.
+    + r.ss(i).a(n) - podci±g znaków
+      Zwraca podci±g z r od pozycji i o d³ugo¶ci mniejszej lub równej n. Gdy n
+      jest -1 to zwraca podci±g o mo¿liwie najwiêkszej d³ugo¶ci. Je¶li jest
+      niemo¿liwe zwrócenie podci±gu to zwraca nil.
+    + r.sc(s) - porównanie znaków
+      Porównuje ci±g r z ci±giem s i zwraca wynik porównania. Je¶li ci±gi s±
+      równe zwraca 0.
+    + r.2n(x) - konwersja obiektu wyra¿enia do liczby
+      Zwraca liczbê z ci±gu z obiektu wyra¿enia r. Je¶li jest to niemo¿liwe
+      zwraca nil.
+
+IMPLEMENTACJA JÊZYKA
+
+  W implementacja jêzyka tego jest zawarta w bibliotece "libdotat.a", która
+udostêpnia interfejs programisty w pliku nag³ówkowym "dotat.hpp". Za¶ sam
+interpreter korzysta tylko z tej biblioteki.  Mo¿liwe jest wykorzystanie tej
+biblioteki w innych programach.
+
+  Implementacja tego jêzyka posiada detekcje rekurencji ogonowej, która pozwala
+wyeliminowaæ przepe³nienie stosu w niektórych przypadkach. Wykrywanie rekurencji
+ogonowej jest mo¿liwe tylko od korzenia do najbardziej wysuniêtego na prawo
+li¶cia. Poni¿ej jest przyk³ad rekurencji ogonowej:
+
+  0.d(m).a(x).e(x.<=(0).&(0).|(0.p(x).&(@.m(x.-(1)))))
+
+  W tej implementacji zastosowano GC (Garbage Collection) oparty na zliczaniu
+referencji. Dziêki temu nie jest konieczne utworzenie nowego w±tku dla GC.
