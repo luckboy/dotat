@@ -833,7 +833,7 @@ namespace dotat
       ostringstream oss;
 
       oss << tmp_self.i();
-      RefPtr<Expr> new_tree(new VarExpr(oss.str()));
+      RefPtr<Expr> new_tree(new ValExpr(interp.num_val(tmp_self.i())));
       Val new_expr(0, interp.expr_obj()->clone());
 
       new_expr.obj()->def_method("m", Method(oss.str(), new_tree));
