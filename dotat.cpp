@@ -868,6 +868,10 @@ namespace dotat
     Val method_e(Interp &interp, const RefPtr<Expr> &arg, const RefPtr<Obj> &/*data*/)
     {
       Val tmp_prev=interp.top_scope()->self();
+
+      if(!tmp_prev.obj()->is_arg_name()) {
+        return interp.nil_val();
+      }
       Val tmp_rcvr=tmp_prev.obj()->rcvr();
       Method new_method;
       RefPtr<Obj> new_data;

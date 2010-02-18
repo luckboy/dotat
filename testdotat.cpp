@@ -805,6 +805,20 @@ void TestExpr::test_evaluate_variable_value()
   CPPUNIT_ASSERT(m_interp->top_scope()->var("x").scope().get()==0);
 }
 
+void TestExpr::test_can_not_define_method_without_args()
+{
+  // 0.d(m).e(1111)
+  dotat::RefPtr<dotat::Expr> d0(new dotat::ValExpr(m_interp->num_val(0)));
+  dotat::RefPtr<dotat::Expr> d_m(new dotat::VarExpr("m"));
+  dotat::RefPtr<dotat::Expr> d1(new dotat::SendMethodExpr(d0, "d", d_m));
+  dotat::RefPtr<dotat::Expr> d_expr(new dotat::ValExpr(m_interp->num_val(1111)));
+  dotat::RefPtr<dotat::Expr> d(new dotat::SendMethodExpr(d1, "e", d_expr));
+  dotat::Val d_r=d->eval(*m_interp);
+
+  CPPUNIT_ASSERT_EQUAL(0, d_r.i());
+  CPPUNIT_ASSERT_EQUAL(m_interp->nil_obj().get(), d_r.obj().get());
+}
+
 //
 // TestParser
 //

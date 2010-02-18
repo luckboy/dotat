@@ -136,6 +136,7 @@ public:
   void test_detect_tail_recursion();
   void test_substitution();
   void test_evaluate_variable_value();
+  void test_can_not_define_method_without_args();
 
   CPPUNIT_TEST_SUITE(TestExpr);
   CPPUNIT_TEST(test_evaluate_val_expr);
@@ -156,6 +157,7 @@ public:
   CPPUNIT_TEST(test_detect_tail_recursion);
   CPPUNIT_TEST(test_substitution);
   CPPUNIT_TEST(test_evaluate_variable_value);
+  CPPUNIT_TEST(test_can_not_define_method_without_args);
   CPPUNIT_TEST_SUITE_END();
 };
 
