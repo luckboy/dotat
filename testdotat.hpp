@@ -78,14 +78,14 @@ public:
   void test_call_native_method_with_data();
   void test_call_method_with_self_expr();
   void test_call_method_with_var_expr();
-  void test_call_curring_method();
+  void test_call_currying_method();
 
   CPPUNIT_TEST_SUITE(TestMethod);
   CPPUNIT_TEST(test_call_native_method);
   CPPUNIT_TEST(test_call_native_method_with_data);
   CPPUNIT_TEST(test_call_method_with_self_expr);
   CPPUNIT_TEST(test_call_method_with_var_expr);
-  CPPUNIT_TEST(test_call_curring_method);
+  CPPUNIT_TEST(test_call_currying_method);
   CPPUNIT_TEST_SUITE_END();
 };
 
@@ -124,7 +124,7 @@ public:
   void test_evaluate_send_method_expr();
   void test_define_and_send_method_1_arg();
   void test_define_and_send_method_2_args();
-  void test_divided_curring();
+  void test_divided_currying();
   void test_double_evaluation();
   void test_double_evaluation_var_rcvr();
   void test_double_evaluation_var_arg();
@@ -145,7 +145,7 @@ public:
   CPPUNIT_TEST(test_evaluate_send_method_expr);
   CPPUNIT_TEST(test_define_and_send_method_1_arg);
   CPPUNIT_TEST(test_define_and_send_method_2_args);
-  CPPUNIT_TEST(test_divided_curring);
+  CPPUNIT_TEST(test_divided_currying);
   CPPUNIT_TEST(test_double_evaluation);
   CPPUNIT_TEST(test_double_evaluation_var_rcvr);
   CPPUNIT_TEST(test_double_evaluation_var_arg);

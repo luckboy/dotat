@@ -196,7 +196,7 @@ void TestMethod::test_call_method_with_var_expr()
   CPPUNIT_ASSERT_EQUAL(arg_val.obj().get(), r.obj().get());
 }
 
-void TestMethod::test_call_curring_method()
+void TestMethod::test_call_currying_method()
 {
   dotat::Val rcvr(1111, new dotat::Obj);
   dotat::Val arg_val1(2222, new dotat::Obj);
@@ -449,7 +449,7 @@ void TestExpr::test_define_and_send_method_2_args()
   m_interp->pop_scope();
 }
 
-void TestExpr::test_divided_curring()
+void TestExpr::test_divided_currying()
 {
   // 0.d(m).a(x1).a(x2).e(x1.-x2)
   dotat::RefPtr<dotat::Expr> a0(new dotat::ValExpr(m_interp->num_val(0)));
