@@ -6,7 +6,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   add_definitions(-Wall -std=c++98)
 endif()
 
-add_library(dotat STATIC dotat.cpp)
+add_library(dotat dotat.cpp)
 add_executable(dotatrun dotatrun.cpp)
 target_link_libraries(dotatrun dotat)
 
