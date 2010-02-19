@@ -33,8 +33,9 @@ install_targets(/lib dotat)
 install_targets(/bin dotatrun)
 install_files(/share/doc/dotat FILES
   "${PROJECT_SOURCE_DIR}/LICENSE.txt"
-  "${PROJECT_SOURCE_DIR}/CZYTAJTO.txt"
-  "${PROJECT_SOURCE_DIR}/examples")
+  "${PROJECT_SOURCE_DIR}/CZYTAJTO.txt")
+install(DIRECTORY "${PROJECT_SOURCE_DIR}/examples/"
+  DESTINATION share/doc/dotat/examples)
 
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "My esoteric programming language")
 set(CPACK_PACKAGE_VENDOR "Lukasz Szpakowski")
