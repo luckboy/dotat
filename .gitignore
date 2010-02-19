@@ -4,6 +4,8 @@
 *.dll
 *.so
 *.exe
+*.exp
+*.res
 dotatrun
 testdotat
 CMakeFiles/*
@@ -17,3 +19,5 @@ Makefile
 cmake_install.cmake
 install_manifest.txt
 dotat-*
+*.manifest
+*.resource.txt

@@ -6,6 +6,14 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   add_definitions(-Wall -std=c++98)
 endif()
 
+if(BUILD_SHARED_LIBS)
+  if(MSVC)
+    add_definitions(/Ddotat_SHARED)
+  else()
+    add_definitions(-Ddotat_SHARED)
+  endif()
+endif()
+
 add_library(dotat dotat.cpp)
 add_executable(dotatrun dotatrun.cpp)
 target_link_libraries(dotatrun dotat)
@@ -41,6 +49,8 @@ set(CPACK_SOURCE_IGNORE_FILES
   ".*\\\\.dll"
   ".*\\\\.so"
   ".*\\\\.exe"
+  ".*\\\\.exp"
+  ".*\\\\.res"
   "/dotatrun$"
   "/testdotat$"
   "/CMakeFiles/"
@@ -53,6 +63,8 @@ set(CPACK_SOURCE_IGNORE_FILES
   "/Makefile"
   "/cmake_install\\\\.cmake"
   "/install_manifest\\\\.txt"
-  "/dotat-.*")
+  "/dotat-.*"
+  ".*\\\\.manifest"
+  ".*\\\\.resource\\\\.txt")
 
 include(CPack)

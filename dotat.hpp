@@ -13,6 +13,21 @@
 #include <vector>
 #include <utility>
 
+#if defined(dotat_SHARED) && defined(WIN32)
+#if defined(dotat_EXPORTS)
+#define DOTAT_DECL      __declspec(dllexport)
+#else
+#define DOTAT_DECL      __declspec(dllimport)
+#endif
+#else
+#define DOTAT_DECL
+#endif
+
+#if defined(_MSC_VER)
+#pragma warning(disable: 4251)
+#pragma warning(disable: 4275)
+#endif
+
 namespace dotat
 {
   template<class T>
@@ -269,7 +284,7 @@ namespace dotat
   // GCObj
   //
 
-  class GCObj
+  class DOTAT_DECL GCObj
   {
     int m_count;
   public:
@@ -334,7 +349,7 @@ namespace dotat
   // Expr
   //
 
-  class Expr
+  class DOTAT_DECL Expr
     : public GCObj
   {
     bool m_is_eval;
@@ -392,7 +407,7 @@ namespace dotat
   // Val
   //
 
-  class Val
+  class DOTAT_DECL Val
   {
     int m_i;
     RefPtr<Obj> m_obj;
@@ -424,7 +439,7 @@ namespace dotat
   // Var
   //
 
-  class Var
+  class DOTAT_DECL Var
   {
     RefPtr<Expr> m_expr;
     RefPtr<Scope> m_scope;
@@ -456,7 +471,7 @@ namespace dotat
   // Scope
   //
 
-  class Scope
+  class DOTAT_DECL Scope
     : public GCObj
   {
     std::map<std::string, Var> m_vars;
@@ -522,7 +537,7 @@ namespace dotat
   // Method
   //
 
-  class Method
+  class DOTAT_DECL Method
   {
     std::string m_arg_name;
     RefPtr<Expr> m_expr;
@@ -598,7 +613,7 @@ namespace dotat
   // Obj
   //
 
-  class Obj
+  class DOTAT_DECL Obj
     : public GCObj
   {
     std::map<std::string, Method> m_methods;
@@ -704,7 +719,7 @@ namespace dotat
   // ValExpr
   //
 
-  class ValExpr
+  class DOTAT_DECL ValExpr
     : public Expr
   {
     Val m_val;
@@ -755,7 +770,7 @@ namespace dotat
   // SelfExpr
   //
 
-  class SelfExpr
+  class DOTAT_DECL SelfExpr
     : public Expr
   {
   public:
@@ -774,7 +789,7 @@ namespace dotat
   // SendMethodExpr
   //
 
-  class SendMethodExpr
+  class DOTAT_DECL SendMethodExpr
     : public Expr
   {
     RefPtr<Expr> m_rcvr;
@@ -829,7 +844,7 @@ namespace dotat
   // ParseError
   //
 
-  class ParseError
+  class DOTAT_DECL ParseError
     : public std::exception
   {
     std::string m_msg;
@@ -843,7 +858,7 @@ namespace dotat
   // Parser
   //
 
-  class Parser
+  class DOTAT_DECL Parser
   {
     std::istream &m_is;
     unsigned m_n_line;
@@ -867,7 +882,7 @@ namespace dotat
   // Interp
   //
 
-  class Interp
+  class DOTAT_DECL Interp
   {
     std::vector<RefPtr<Scope> > m_scope_stck;
     Method m_last_method;
