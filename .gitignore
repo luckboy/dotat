@@ -8,9 +8,12 @@ dotatrun
 testdotat
 CMakeFiles/*
 Testing/*
+_CPack_Packages/*
 CMakeCache.txt
 CPackConfig.cmake
 CPackSourceConfig.cmake
 CTestTestfile.cmake
 Makefile
 cmake_install.cmake
+install_manifest.txt
+dotat-*

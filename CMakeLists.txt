@@ -19,3 +19,39 @@ if(BUILD_TESTING)
     add_test(testdotat "${PROJECT_BINARY_DIR}/testdotat")
   endif()
 endif()
+
+install_files(/include .hpp "${PROJECT_SOURCE_DIR}/dotat.hpp")
+install_targets(/lib dotat)
+install_targets(/bin dotatrun)
+
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "My esoteric programming language")
+set(CPACK_PACKAGE_VENDOR "Lukasz Szpakowski")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/CZYTAJTO.txt")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
+set(CPACK_PACKAGE_VERSION_MAJOR "0")
+set(CPACK_PACKAGE_VERSION_MINOR "0")
+set(CPACK_PACKAGE_VERSION_PATCH "1")
+set(CPACK_SOURCE_IGNORE_FILES
+  "/\\\\.git/"
+  "/\\\\.gitignore"
+  ".*~"
+  ".*\\\\.a"
+  ".*\\\\.lib"
+  ".*\\\\.dll"
+  ".*\\\\.so"
+  ".*\\\\.exe"
+  "/dotatrun$"
+  "/testdotat$"
+  "/CMakeFiles/"
+  "/Testing/"
+  "/_CPack_Packages/"
+  "/CMakeCache\\\\.txt"
+  "/CPackConfig\\\\.cmake"
+  "/CPackSourceConfig\\\\.cmake"
+  "/CTestTestfile\\\\.cmake"
+  "/Makefile"
+  "/cmake_install\\\\.cmake"
+  "/install_manifest\\\\.txt"
+  "/dotat-.*")
+
+include(CPack)
