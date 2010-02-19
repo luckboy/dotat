@@ -23,6 +23,7 @@ endif()
 install_files(/include .hpp "${PROJECT_SOURCE_DIR}/dotat.hpp")
 install_targets(/lib dotat)
 install_targets(/bin dotatrun)
+install_files(/share/doc/dotat .txt "${PROJECT_SOURCE_DIR}/LICENSE.txt" "${PROJECT_SOURCE_DIR}/CZYTAJTO.txt")
 
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "My esoteric programming language")
 set(CPACK_PACKAGE_VENDOR "Lukasz Szpakowski")
