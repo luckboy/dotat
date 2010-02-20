@@ -1237,6 +1237,16 @@ void TestInterp::test_extract_tree_from_method()
   CPPUNIT_ASSERT_EQUAL(m_interp->num_obj().get(), rightp->val().obj().get());
 }
 
+void TestInterp::test_can_not_extract_tree_from_method_without_expr()
+{
+  istringstream iss("0.t(+)");
+  dotat::RefPtr<dotat::Expr> expr(m_interp->parse(iss));
+  dotat::Val val=expr->eval(*m_interp);
+
+  CPPUNIT_ASSERT_EQUAL(0, val.i());
+  CPPUNIT_ASSERT_EQUAL(m_interp->nil_obj().get(), val.obj().get());
+}
+
 void TestInterp::test_expr_l()
 {
   istringstream iss1("0.d(m1).a(x).e(l1.m2(r1)).t(m1).l(0)");
@@ -1273,6 +1283,24 @@ void TestInterp::test_expr_r()
   dotat::Val val2=expr2->eval(*m_interp);
 
   CPPUNIT_ASSERT_EQUAL(m_interp->nil_obj().get(), val2.obj().get());
+}
+
+void TestInterp::test_expr_l_and_r_for_method_without_expr()
+{
+  istringstream fun_iss("0.d(m1).a(x).e(x.m2(1)).t(m1)");
+  dotat::RefPtr<dotat::Expr> fun_expr(m_interp->parse(fun_iss));
+  dotat::Val fun_val=fun_expr->eval(*m_interp);
+
+  fun_val.obj()->def_method("m", dotat::Method(native_fun1, true));
+  dotat::RefPtr<dotat::Expr> rcvr(new dotat::ValExpr(fun_val));
+  dotat::RefPtr<dotat::Expr> arg(new dotat::ValExpr(m_interp->num_val(0)));
+  dotat::RefPtr<dotat::Expr> l_expr(new dotat::SendMethodExpr(rcvr, "l", arg));
+  dotat::RefPtr<dotat::Expr> r_expr(new dotat::SendMethodExpr(rcvr, "r", arg));
+  dotat::Val l_val=l_expr->eval(*m_interp);
+  dotat::Val r_val=r_expr->eval(*m_interp);
+
+  CPPUNIT_ASSERT_EQUAL(m_interp->nil_obj().get(), l_val.obj().get());
+  CPPUNIT_ASSERT_EQUAL(m_interp->nil_obj().get(), r_val.obj().get());
 }
 
 void TestInterp::test_expr_sl()

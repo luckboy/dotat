@@ -213,8 +213,10 @@ public:
   void test_push_and_pop_one_scope();
   void test_push_and_pop_two_scopes();
   void test_extract_tree_from_method();
+  void test_can_not_extract_tree_from_method_without_expr();
   void test_expr_l();
   void test_expr_r();
+  void test_expr_l_and_r_for_method_without_expr();
   void test_expr_sl();
   void test_expr_sr();
   void test_expr_s();
@@ -230,8 +232,10 @@ public:
   CPPUNIT_TEST(test_push_and_pop_one_scope);
   CPPUNIT_TEST(test_push_and_pop_two_scopes);
   CPPUNIT_TEST(test_extract_tree_from_method);
+  CPPUNIT_TEST(test_can_not_extract_tree_from_method_without_expr);
   CPPUNIT_TEST(test_expr_l);
   CPPUNIT_TEST(test_expr_r);
+  CPPUNIT_TEST(test_expr_l_and_r_for_method_without_expr);
   CPPUNIT_TEST(test_expr_sl);
   CPPUNIT_TEST(test_expr_sr);
   CPPUNIT_TEST(test_expr_s);

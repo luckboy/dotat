@@ -629,14 +629,15 @@ namespace dotat
       if(tmp_self.obj()->is_method(method_name)) {
         const Method &method=tmp_self.obj()->method(method_name);
         const string &arg_name=method.arg_name();
-        RefPtr<Expr> tmp_tree=method.expr();
-        Val new_expr(0, interp.expr_obj()->clone());
+        if(method.is_expr()) {
+          RefPtr<Expr> tmp_tree=method.expr();
+          Val new_expr(0, interp.expr_obj()->clone());
 
-        new_expr.obj()->def_method("m", Method(arg_name, tmp_tree));
-        return new_expr;
-      } else {
-        return interp.nil_val();
+          new_expr.obj()->def_method("m", Method(arg_name, tmp_tree));
+          return new_expr;
+        }
       }
+      return interp.nil_val();
     }
 
     Val any_g(Interp &interp, const RefPtr<Expr> &arg, const RefPtr<Obj> &/*data*/)
@@ -923,14 +924,17 @@ namespace dotat
       if(tmp_self.obj()->is_method("m")) {
         const Method &method=tmp_self.obj()->method("m");
         const string &arg_name=method.arg_name();
-        RefPtr<Expr> tmp_tree=method.expr();
-        RefPtr<Expr> tmp_lr=(is_left ? tmp_tree->left() : tmp_tree->right());
 
-        if(tmp_tree.get()!=0 && tmp_lr.get()!=0) {
-          Val new_self(tmp_self.i(), tmp_self.obj()->clone());
+        if(method.is_expr()) {
+          RefPtr<Expr> tmp_tree=method.expr();
+          RefPtr<Expr> tmp_lr=(is_left ? tmp_tree->left() : tmp_tree->right());
 
-          new_self.obj()->def_method("m", Method(arg_name, tmp_lr));
-          return new_self;
+          if(tmp_lr.get()!=0) {
+            Val new_self(tmp_self.i(), tmp_self.obj()->clone());
+
+            new_self.obj()->def_method("m", Method(arg_name, tmp_lr));
+            return new_self;
+          }
         }
       }
       return interp.nil_val();
