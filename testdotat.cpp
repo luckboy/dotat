@@ -1061,6 +1061,47 @@ void TestParser::test_empty_var_name()
   CPPUNIT_ASSERT_EQUAL(string(""), argp2->var_name());
 }
 
+void TestParser::test_parse_error()
+{
+  bool is_except;
+  // 0.m
+  istringstream iss1("\n\n0.m");
+  dotat::Parser parser1(iss1);
+
+  try {
+    is_except=false;
+    parser1.parse(*m_interp);
+  } catch(dotat::ParseError &e) {
+    is_except=true;
+    CPPUNIT_ASSERT_EQUAL(string("3:"), string(e.what()).substr(0, 2));
+  }
+  CPPUNIT_ASSERT(is_except);
+  // 0.m(x
+  istringstream iss2("0.m(x\n");
+  dotat::Parser parser2(iss2);
+
+  try {
+    is_except=false;
+    parser2.parse(*m_interp);
+  } catch(dotat::ParseError &e) {
+    is_except=true;
+    CPPUNIT_ASSERT_EQUAL(string("2:"), string(e.what()).substr(0, 2));
+  }
+  CPPUNIT_ASSERT(is_except);
+  // 0.m(x)m
+  istringstream iss3("0.m(x)m\n");
+  dotat::Parser parser3(iss3);
+
+  try {
+    is_except=false;
+    parser3.parse(*m_interp);
+  } catch(dotat::ParseError &e) {
+    is_except=true;
+    CPPUNIT_ASSERT_EQUAL(string("1:"), string(e.what()).substr(0, 2));
+  }
+  CPPUNIT_ASSERT(is_except);
+}
+
 //
 // TestInterp
 //

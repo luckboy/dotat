@@ -181,6 +181,7 @@ public:
   void test_skip_comment();
   void test_empty_method_name();
   void test_empty_var_name();
+  void test_parse_error();
 
   CPPUNIT_TEST_SUITE(TestParser);
   CPPUNIT_TEST(test_parse_val_expr);
@@ -192,6 +193,7 @@ public:
   CPPUNIT_TEST(test_skip_comment);
   CPPUNIT_TEST(test_empty_method_name);
   CPPUNIT_TEST(test_empty_var_name);
+  CPPUNIT_TEST(test_parse_error);
   CPPUNIT_TEST_SUITE_END();
 };
 
